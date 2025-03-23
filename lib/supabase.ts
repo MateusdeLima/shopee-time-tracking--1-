@@ -1,14 +1,61 @@
 import { createClient } from "@supabase/supabase-js"
 
-// Verificar se estamos no ambiente de build (Vercel/CI) ou em ambiente de desenvolvimento
-const isBuildTime = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' && typeof window === 'undefined';
+// Verificar se estamos no navegador
+const isBrowser = typeof window !== 'undefined';
+
+// Verificar se estamos no ambiente de build
+const isBuildTime = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' && !isBrowser;
 
 // Use valores padrão durante o build para evitar erros
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || (isBuildTime ? 'https://placeholder-url.supabase.co' : '');
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || (isBuildTime ? 'placeholder-key' : '');
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-// Criar cliente Supabase apenas se tivermos as credenciais ou se for tempo de build
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Criar cliente Supabase apenas se tivermos as credenciais
+let supabase: ReturnType<typeof createClient>;
+
+// Inicialização segura do cliente Supabase
+if (!supabaseUrl || !supabaseKey) {
+  // Criar um cliente simulado para evitar erros se as variáveis de ambiente não estiverem disponíveis
+  if (isBrowser) {
+    console.error('Erro: Variáveis de ambiente do Supabase não configuradas corretamente.');
+    
+    // Criando um objeto proxy que simula o cliente Supabase mas retorna promessas vazias
+    const dummyResponse = { data: null, error: { message: "Configuração do Supabase ausente" } };
+    
+    supabase = new Proxy({} as ReturnType<typeof createClient>, {
+      get: (target, prop) => {
+        // Para métodos comuns do Supabase (from, auth, etc)
+        if (typeof prop === 'string') {
+          return new Proxy({}, {
+            get: () => {
+              // Retorna uma função que simula métodos encadeados
+              return (..._args: any[]) => ({
+                select: () => Promise.resolve(dummyResponse),
+                insert: () => Promise.resolve(dummyResponse),
+                update: () => Promise.resolve(dummyResponse),
+                delete: () => Promise.resolve(dummyResponse),
+                eq: () => Promise.resolve(dummyResponse),
+                single: () => Promise.resolve(dummyResponse),
+                limit: () => Promise.resolve(dummyResponse),
+                then: (callback: any) => Promise.resolve(dummyResponse).then(callback),
+                catch: (callback: any) => Promise.resolve(dummyResponse).catch(callback),
+              })
+            }
+          });
+        }
+        return () => Promise.resolve(dummyResponse);
+      }
+    });
+  } else {
+    // No ambiente de servidor, criar um cliente com valores vazios (será recriado em cada requisição)
+    supabase = createClient('https://placeholder-url.supabase.co', 'placeholder-key');
+  }
+} else {
+  // Criar o cliente real se as variáveis estiverem disponíveis
+  supabase = createClient(supabaseUrl, supabaseKey);
+}
+
+export { supabase };
 
 let dbInitialized = false;
 
@@ -18,6 +65,12 @@ export async function setupDatabase() {
   if (isBuildTime) {
     console.log("Ambiente de build detectado, pulando inicialização do banco de dados.")
     return true;
+  }
+  
+  // Skip if no valid configuration
+  if (!supabaseUrl || !supabaseKey) {
+    console.error("Variáveis de ambiente Supabase não configuradas. Pulando inicialização do banco de dados.");
+    return false;
   }
   
   if (dbInitialized) {

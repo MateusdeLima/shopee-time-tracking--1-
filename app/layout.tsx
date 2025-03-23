@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/toaster"
+import { SupabaseError } from "@/components/supabase-error"
+import { SupabaseProvider } from "@/lib/supabase-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -20,8 +22,11 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
-        {children}
+        <SupabaseProvider>
+          {children}
+        </SupabaseProvider>
         <Toaster />
+        <SupabaseError />
       </body>
     </html>
   )

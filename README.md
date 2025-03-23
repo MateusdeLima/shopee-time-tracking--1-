@@ -82,15 +82,26 @@ A forma mais fácil de implantar este projeto é usando a [Vercel](https://verce
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
-4. **IMPORTANTE**: Certifique-se de que todas as variáveis estejam configuradas corretamente tanto para produção quanto para o processo de build. No painel do Vercel:
+4. **EXTREMAMENTE IMPORTANTE**: Certifique-se de que todas as variáveis estejam configuradas corretamente para TODOS os ambientes:
    - Vá para "Project Settings" > "Environment Variables"
    - Adicione todas as variáveis necessárias 
-   - Selecione "Production", "Preview" e "Development" para cada variável
+   - Certifique-se de selecionar "Production", "Preview" e "Development" para cada variável
+   - Não deixe nenhuma variável sem valor
 5. Implante! Use a seguinte configuração:
    - Framework Preset: Next.js
    - Node.js Version: 18.x ou superior
    - Build Command: `npm run build` ou `yarn build`
    - Output Directory: `.next`
+
+#### Solução de Problemas no Vercel
+
+Se a aplicação exibir o erro "supabaseUrl is required" após o deploy:
+
+1. Verifique se todas as variáveis de ambiente estão configuradas no painel do Vercel
+2. Confirme que as variáveis estão aplicadas a todos os ambientes (Production, Preview, Development)
+3. Verifique se não há espaços extras ou caracteres especiais nos valores das variáveis
+4. Após fazer alterações nas variáveis, faça um novo deploy do projeto (Deployments > Redeploy)
+5. No painel do Vercel, você pode verificar as variáveis usadas durante o build em "Deployments" > [último deploy] > "Functions" > [qualquer função] > "Logs"
 
 ### Outras plataformas
 
