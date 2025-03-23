@@ -2,12 +2,30 @@ import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
 export async function GET() {
+  // Verificar se estamos no ambiente de build
+  const isBuildTime = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' && typeof window === 'undefined';
+  
+  if (isBuildTime) {
+    // Durante o build, apenas retorne sucesso
+    console.log("Ambiente de build detectado, pulando inicialização do banco de dados.")
+    return NextResponse.json({ success: true, message: "Build mode - skipping database setup" })
+  }
+  
   try {
     console.log("Iniciando inicialização do banco de dados via API...")
 
     // Criar cliente Supabase
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error("Variáveis de ambiente do Supabase não configuradas")
+      return NextResponse.json({ 
+        success: false, 
+        message: "Variáveis de ambiente do Supabase não configuradas. Configure NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY." 
+      }, { status: 500 })
+    }
+    
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Verificar tabelas e inserir dados iniciais

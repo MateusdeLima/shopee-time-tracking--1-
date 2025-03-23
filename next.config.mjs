@@ -21,6 +21,10 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  env: {
+    // Definir valores padrão para as variáveis de ambiente durante o build
+    NEXT_PUBLIC_BUILD_TIME: 'true',
+  },
 }
 
 mergeConfig(nextConfig, userConfig)

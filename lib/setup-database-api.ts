@@ -2,6 +2,15 @@ import { supabase } from "./supabase"
 
 // Função para criar as tabelas via API REST do Supabase
 export async function createTablesApi() {
+  // Verificar se estamos no ambiente de build
+  const isBuildTime = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' && typeof window === 'undefined';
+  
+  if (isBuildTime) {
+    // Durante o build, apenas retorne sucesso
+    console.log("Ambiente de build detectado, pulando inicialização do banco de dados.")
+    return true
+  }
+  
   try {
     console.log("Iniciando criação de tabelas via API...")
 

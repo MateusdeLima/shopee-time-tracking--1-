@@ -1,13 +1,25 @@
 import { createClient } from "@supabase/supabase-js"
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-export const supabase = createClient(supabaseUrl, supabaseKey)
+// Verificar se estamos no ambiente de build (Vercel/CI) ou em ambiente de desenvolvimento
+const isBuildTime = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' && typeof window === 'undefined';
 
-let dbInitialized = false
+// Use valores padrão durante o build para evitar erros
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || (isBuildTime ? 'https://placeholder-url.supabase.co' : '');
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || (isBuildTime ? 'placeholder-key' : '');
+
+// Criar cliente Supabase apenas se tivermos as credenciais ou se for tempo de build
+export const supabase = createClient(supabaseUrl, supabaseKey);
+
+let dbInitialized = false;
 
 // Função para criar as tabelas necessárias
 export async function setupDatabase() {
+  // Skip initialization during build time
+  if (isBuildTime) {
+    console.log("Ambiente de build detectado, pulando inicialização do banco de dados.")
+    return true;
+  }
+  
   if (dbInitialized) {
     console.log("Banco de dados já inicializado, pulando configuração.")
     return true

@@ -82,7 +82,15 @@ A forma mais fácil de implantar este projeto é usando a [Vercel](https://verce
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
-4. Implante!
+4. **IMPORTANTE**: Certifique-se de que todas as variáveis estejam configuradas corretamente tanto para produção quanto para o processo de build. No painel do Vercel:
+   - Vá para "Project Settings" > "Environment Variables"
+   - Adicione todas as variáveis necessárias 
+   - Selecione "Production", "Preview" e "Development" para cada variável
+5. Implante! Use a seguinte configuração:
+   - Framework Preset: Next.js
+   - Node.js Version: 18.x ou superior
+   - Build Command: `npm run build` ou `yarn build`
+   - Output Directory: `.next`
 
 ### Outras plataformas
 
@@ -124,5 +132,15 @@ O projeto utiliza o Supabase como banco de dados. Para configurá-lo:
    - Execute o script para criar todas as tabelas necessárias
 
 ## Solução de Problemas
+
+### Erros no Build (Vercel/CI)
+
+Se você encontrar erros como "supabaseUrl is required" durante o build no Vercel ou em outro serviço de CI, verifique:
+
+1. As variáveis de ambiente estão configuradas corretamente no serviço de hospedagem
+2. As variáveis estão aplicadas tanto para produção quanto para o processo de build
+3. O escopo das variáveis inclui os ambientes "Production", "Preview" e "Development" (no caso do Vercel)
+
+### API Supabase
 
 Se você encontrar problemas com o método `query` no Supabase, isso ocorre porque a API atual do Supabase não suporta diretamente a execução de consultas SQL personalizadas através do cliente. É por isso que fornecemos um script SQL separado para configurar o banco de dados manualmente. 

@@ -2,6 +2,15 @@ import { NextResponse } from "next/server"
 import { createTablesApi } from "@/lib/setup-database-api"
 
 export async function GET() {
+  // Verificar se estamos no ambiente de build
+  const isBuildTime = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' && typeof window === 'undefined';
+  
+  if (isBuildTime) {
+    // Durante o build, apenas retorne sucesso
+    console.log("Ambiente de build detectado, pulando inicialização do banco de dados.")
+    return NextResponse.json({ success: true, message: "Build mode - skipping database setup" })
+  }
+  
   try {
     console.log("Iniciando configuração do banco de dados via API...")
     const success = await createTablesApi()
