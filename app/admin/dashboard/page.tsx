@@ -69,10 +69,6 @@ export default function AdminDashboard() {
       </header>
 
       <main className="container mx-auto p-4 md:p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <AdminSummary />
-        </div>
-
         <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="w-full">
           <div className="overflow-x-auto">
             <TabsList className="w-full md:w-auto inline-flex">

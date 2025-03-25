@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { toast } from "@/components/ui/use-toast"
-import { Clock, AlertCircle } from "lucide-react"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle, Clock } from "lucide-react"
+import { toast } from "@/components/ui/use-toast"
 
 const OVERTIME_OPTIONS = [
   { id: "7h_18h", label: "7h às 18h", value: 2 },

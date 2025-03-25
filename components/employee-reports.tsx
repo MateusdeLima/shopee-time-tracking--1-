@@ -72,15 +72,21 @@ export function EmployeeReports() {
 
   useEffect(() => {
     // Extrair funcionários únicos dos registros
-    const uniqueEmployees = Array.from(new Set(records.map((record) => record.userId))).map((userId) => {
-      const user = getUserById(userId as string)
-      return {
-        id: userId,
-        email: user ? `${user.firstName} ${user.lastName} (${user.email})` : userId,
-      }
-    })
+    const loadEmployees = async () => {
+      const uniqueEmployees = Array.from(new Set(records.map((record) => record.userId)))
+      const employeeData = await Promise.all(
+        uniqueEmployees.map(async (userId) => {
+          const user = await getUserById(userId as string)
+          return {
+            id: userId,
+            email: user ? `${user.firstName} ${user.lastName} (${user.email})` : userId,
+          }
+        })
+      )
+      setEmployees(employeeData)
+    }
 
-    setEmployees(uniqueEmployees)
+    loadEmployees()
   }, [records])
 
   useEffect(() => {
@@ -171,13 +177,13 @@ export function EmployeeReports() {
     })
   }
 
-  const handleViewDetails = (item: any) => {
+  const handleViewDetails = async (item: any) => {
     // Buscar registros específicos para este funcionário e feriado
-    const userRecords = getOvertimeRecordsByUserId(item.employeeId)
-    const holidayRecords = userRecords.filter((record) => record.holidayId === item.holidayId)
+    const userRecords = await getOvertimeRecordsByUserId(item.employeeId)
+    const holidayRecords = userRecords.filter((record: any) => record.holidayId === item.holidayId)
 
     // Ordenar por data de criação (mais recentes primeiro)
-    holidayRecords.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    holidayRecords.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
     setSelectedDetails(item)
     setDetailRecords(holidayRecords)
